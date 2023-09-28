@@ -36,7 +36,14 @@ def send_flow(byte_payload, src_ip, collector_ip, config):
         output = send(payload, verbose=False)
 
 
-def main(config):
+def main():
+    args   = parse_arguments()
+    config = parse_config(args)
+
+    if config['debug'] != False:
+        logging.basicConfig(filename=config['log_file'], format='%(asctime)s - %(message)s', level=logging.DEBUG)
+    else:
+        logging.basicConfig(filename=config['log_file'], format='%(asctime)s - %(message)s', level=logging.INFO)
     # Open up the server socket
     address = (config['bind_ip'], int(config['bind_port']))
     server_socket = socket(AF_INET, SOCK_DGRAM)
@@ -100,16 +107,8 @@ def parse_arguments():
 
 def parse_config(args):
     with open(args.configfile, 'r') as ymlfile:
-        cfg = yaml.load(ymlfile)
+        cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
     return cfg
 
 if __name__ == "__main__":
-    args   = parse_arguments()
-    config = parse_config(args)
-
-    if config['debug'] != False:
-        logging.basicConfig(filename=config['log_file'], format='%(asctime)s - %(message)s', level=logging.DEBUG)
-    else:
-        logging.basicConfig(filename=config['log_file'], format='%(asctime)s - %(message)s', level=logging.INFO)
-
-    main(config)
+    main()
